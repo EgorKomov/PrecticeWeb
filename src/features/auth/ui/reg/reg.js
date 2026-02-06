@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { register } from '../../authSlice';
@@ -14,6 +14,14 @@ export const Reg = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    document.body.classList.add('auth-page');
+    
+    return () => {
+      document.body.classList.remove('auth-page');
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,73 +55,65 @@ export const Reg = () => {
   };
 
   return (
-    <div className={styles.Register}>
-      <form onSubmit={handleSubmit}>
-        <h1>Регистрация</h1>
-        
-        {error && (
-          <div style={{ 
-            color: 'red', 
-            textAlign: 'center', 
-            marginBottom: '15px',
-            padding: '10px',
-            backgroundColor: 'rgba(255,0,0,0.1)',
-            borderRadius: '5px',
-            fontSize: '14px'
-          }}>
-            {error}
+    <div className="auth-container">
+      <div className={styles.Register}>
+        <form onSubmit={handleSubmit}>
+          <h1>Регистрация</h1>
+          
+          {error && (
+            <div className={styles.errorMessage}>
+              {error}
+            </div>
+          )}
+          
+          <div className={styles.inputBox}>
+            <input 
+              type="email" 
+              placeholder="Email" 
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
-        )}
-        
-        <div className={styles.inputBox}>
-          <input 
-            type="email" 
-            placeholder="Email" 
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputBox}>
-          <input 
-            type="text" 
-            placeholder="Name" 
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputBox}>
-          <input 
-            type="password" 
-            placeholder="Пароль" 
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputBox}>
-          <input 
-            type="password" 
-            placeholder="Повторить пароль" 
-            required
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-        </div>
+          <div className={styles.inputBox}>
+            <input 
+              type="text" 
+              placeholder="Имя" 
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <div className={styles.inputBox}>
+            <input 
+              type="password" 
+              placeholder="Пароль" 
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <div className={styles.inputBox}>
+            <input 
+              type="password" 
+              placeholder="Повторите пароль" 
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
 
-        <button type="submit" className={styles.btn} disabled={loading}>
-          {loading ? 'Регистрация...' : 'Зарегистрироваться'}
-        </button>
-        
-        <div style={{ textAlign: 'center', marginTop: '15px' }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <button type="button" className={styles.btn}>
-              Вернуться
-            </button>
-          </Link>
-        </div>
-      </form>
+          <button type="submit" className={styles.btn} disabled={loading}>
+            {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+          </button>
+          
+          <div className={styles.linkContainer}>
+            <Link to="/" className={styles.link}>
+              Уже есть аккаунт? Войти
+            </Link>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
