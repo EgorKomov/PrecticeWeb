@@ -1,0 +1,76 @@
+html {
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+html,
+body,
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
+ul {
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+a {
+    text-decoration: none;
+}
+
+body {
+    position: relative;
+    display: block;
+}
+
+*::-webkit-scrollbar {
+    width: 0.4em;
+    height: 0.6em;
+    border-radius: 10px;
+}
+
+body.dashboard-page,
+body.board-page {
+    display: block;
+    width: 100%;
+}
+
+.dashboard-container {
+    display: block;
+    width: 100%;
+    padding: 20px;
+}
+
+body.dashboard-page #root,
+body.board-page #root {
+    display: block;
+    width: 100%;
+}
+
+.dashboardContainer {
+    width: 100%;
+    min-height: 100vh;
+}
