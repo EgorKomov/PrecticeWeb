@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:7000';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:7000';
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000,
 });
 
 api.interceptors.request.use(
@@ -22,26 +23,24 @@ api.interceptors.request.use(
   }
 );
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authAPI = {
   login: (email, password) => 
     api.post('/auth/login', { email, password }),
   
   register: (userData) => 
     api.post('/auth/registration', userData),
-};
-
-export const boardsAPI = {
-  getBoards: () => 
-    api.get('/boards'),
-  
-  createBoard: (boardData) => 
-    api.post('/boards', boardData),
-  
-  updateBoard: (id, boardData) => 
-    api.put(`/boards/${id}`, boardData),
-  
-  deleteBoard: (id) => 
-    api.delete(`/boards/${id}`),
 };
 
 export default api;

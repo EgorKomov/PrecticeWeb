@@ -3,7 +3,7 @@ import { AuthPage } from "../../pages/Auth";
 import { RegPage } from "../../pages/Reg";
 import { DashboardPage } from "../../pages/Dashboard";
 import { CreateDashboardPage } from "../../pages/CreateDashboard";
-import { ProtectedRoute } from "../../components/ProtectedRoute";
+import { ProtectedRoute } from "../../app/providers/ProtectedRoute";
 
 export const routesConfig = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ export const routesConfig = createBrowserRouter([
     )
   },
   {
-    path: "/create-dashboard",
+    path: "/dashboard/:id",
     element: (
       <ProtectedRoute>
         <CreateDashboardPage />

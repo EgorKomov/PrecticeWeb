@@ -1,57 +1,58 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { register } from '../../authSlice';
+import { register } from '../../slice/authSlice';
+import { useForm } from '../../../../shared/hooks/useForm';
+import { Button } from '../../../../shared/ui';
+import { ENUM_LINK } from '../../../../shared/constants/link';
 import styles from './styles.module.scss';
 import { Link } from "react-router";
 
 export const Reg = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const { values, handleChange } = useForm({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const { error, isAuthenticated } = useSelector((state) => state.auth);
+  const redirected = useRef(false);
 
   useEffect(() => {
     document.body.classList.add('auth-page');
-    
     return () => {
       document.body.classList.remove('auth-page');
     };
   }, []);
 
+  useEffect(() => {
+    if (isAuthenticated && !redirected.current) {
+      redirected.current = true;
+      navigate(ENUM_LINK.DASHBOARD, { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!username || !email || !password || !confirmPassword) {
-      alert('Пожалуйста, заполните все поля');
+    if (!values.name || !values.email || !values.password || !values.confirmPassword) {
       return;
     }
 
-    if (password !== confirmPassword) {
-      alert('Пароли не совпадают');
+    if (values.password !== values.confirmPassword) {
       return;
     }
 
-    try {
-      const userData = {
-        name: username,
-        email,
-        password,
-      };
-      
-      const result = await dispatch(register(userData));
-      
-      if (register.fulfilled.match(result)) {
-        alert('Регистрация успешна! Теперь войдите в систему.');
-        navigate('/');
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-    }
+    const userData = {
+      name: values.name,
+      email: values.email,
+      password: values.password,
+    };
+
+    await dispatch(register(userData));
   };
 
   return (
@@ -69,46 +70,50 @@ export const Reg = () => {
           <div className={styles.inputBox}>
             <input 
               type="email" 
+              name="email"
               placeholder="Email" 
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={values.email}
+              onChange={handleChange}
             />
           </div>
           <div className={styles.inputBox}>
             <input 
               type="text" 
+              name="name"
               placeholder="Имя" 
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={values.name}
+              onChange={handleChange}
             />
           </div>
           <div className={styles.inputBox}>
             <input 
               type="password" 
+              name="password"
               placeholder="Пароль" 
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={values.password}
+              onChange={handleChange}
             />
           </div>
           <div className={styles.inputBox}>
             <input 
               type="password" 
+              name="confirmPassword"
               placeholder="Повторите пароль" 
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={values.confirmPassword}
+              onChange={handleChange}
             />
           </div>
 
-          <button type="submit" className={styles.btn} disabled={loading}>
-            {loading ? 'Регистрация...' : 'Зарегистрироваться'}
-          </button>
+          <div className={styles.passwordHint}>
+            Пароль должен содержать минимум 6 символов
+          </div>
+
+          <Button type="submit" variant="success" fullWidth>
+            Зарегистрироваться
+          </Button>
           
           <div className={styles.linkContainer}>
-            <Link to="/" className={styles.link}>
+            <Link to={ENUM_LINK.MAIN} className={styles.link}>
               Уже есть аккаунт? Войти
             </Link>
           </div>

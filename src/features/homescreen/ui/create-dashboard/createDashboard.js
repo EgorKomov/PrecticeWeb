@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../auth/slice/authSlice';
 import styles from './style.module.scss';
+import { Button } from '../../../../shared/ui/Button';
 
 export const CreateDashboard = () => {
+  const dispatch = useDispatch();
+
   useEffect(() => {
     document.body.classList.add('board-page');
     
@@ -9,6 +14,11 @@ export const CreateDashboard = () => {
       document.body.classList.remove('board-page');
     };
   }, []);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    window.location.href = '/';
+  };
 
   return (
     <>
@@ -20,12 +30,8 @@ export const CreateDashboard = () => {
             <input type="text" placeholder="Название списка" required />
           </div>
           <div className={styles.modalButtons}>
-            <a href="#" className={`${styles.modalBtn} ${styles.modalBtnCancel}`}>
-              Отмена
-            </a>
-            <a href="/dashboard" className={`${styles.modalBtn} ${styles.modalBtnSave}`}>
-              Создать
-            </a>
+            <Button variant="secondary">Отмена</Button>
+            <Button variant="success">Создать</Button>
           </div>
         </div>
       </div>
@@ -38,12 +44,8 @@ export const CreateDashboard = () => {
             <input type="text" placeholder="Содержание карточки" required />
           </div>
           <div className={styles.modalButtons}>
-            <a href="#" className={`${styles.modalBtn} ${styles.modalBtnCancel}`}>
-              Отмена
-            </a>
-            <a href="/dashboard" className={`${styles.modalBtn} ${styles.modalBtnSave}`}>
-              Добавить
-            </a>
+            <Button variant="secondary">Отмена</Button>
+            <Button variant="success">Добавить</Button>
           </div>
         </div>
       </div>
@@ -52,7 +54,9 @@ export const CreateDashboard = () => {
         <div className={styles.boardHeader}>
           <a href="/dashboard" className={styles.backBtn}>← Назад</a>
           <h1 className={styles.boardTitle}>Моя доска</h1>
-          <a href="/" className={styles.logoutBtn}>Выйти</a>
+          <Button onClick={handleLogout} variant="danger" className={styles.boardLogoutBtn}>
+            Выйти
+          </Button>
         </div>
 
         <div className={styles.listsContainer}>
@@ -120,4 +124,4 @@ export const CreateDashboard = () => {
       </div>
     </>
   );
-}
+};

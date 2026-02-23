@@ -1,49 +1,46 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
-import { login } from '../../authSlice';
+import { login } from '../../slice/authSlice';
+import { useForm } from '../../../../shared/hooks/useForm';
+import { Button } from '../../../../shared/ui';
+import { ENUM_LINK } from '../../../../shared/constants/link';
 import styles from './style.module.scss';
 import { Link } from "react-router";
 
 export const Auth = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange } = useForm({
+    email: '',
+    password: ''
+  });
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const { error, isAuthenticated } = useSelector((state) => state.auth);
+  const redirected = useRef(false);
 
   useEffect(() => {
     document.body.classList.add('auth-page');
-    
     return () => {
       document.body.classList.remove('auth-page');
     };
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
+    if (isAuthenticated && !redirected.current) {
+      redirected.current = true;
+      navigate(ENUM_LINK.DASHBOARD, { replace: true });
     }
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      alert('Пожалуйста, заполните все поля');
+    if (!values.email || !values.password) {
       return;
     }
 
-    try {
-      const result = await dispatch(login({ email, password }));
-      
-      if (login.fulfilled.match(result)) {
-        console.log('Вход успешен');
-      }
-    } catch (error) {
-      console.error('Ошибка входа:', error);
-    }
+    await dispatch(login(values));
   };
 
   return (
@@ -61,28 +58,28 @@ export const Auth = () => {
           <div className={styles.inputBox}>
             <input 
               type="email" 
+              name="email"
               placeholder="Email" 
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={values.email}
+              onChange={handleChange}
             />
           </div>
           <div className={styles.inputBox}>
             <input 
               type="password" 
+              name="password"
               placeholder="Пароль" 
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={values.password}
+              onChange={handleChange}
             />
           </div>
 
-          <button type="submit" className={styles.btn} disabled={loading}>
-            {loading ? 'Вход...' : 'Войти'}
-          </button>
+          <Button type="submit" variant="primary" fullWidth>
+            Войти
+          </Button>
           
           <div className={styles.linkContainer}>
-            <Link to="/register" className={styles.link}>
+            <Link to={ENUM_LINK.REG} className={styles.link}>
               Нет аккаунта? Зарегистрироваться
             </Link>
           </div>
