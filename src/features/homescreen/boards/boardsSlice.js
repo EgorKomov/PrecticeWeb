@@ -1,94 +1,73 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
-const getCurrentUser = () => {
-  try {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
-  } catch (error) {
-    return null;
-  }
-};
-
-const getUserBoardsKey = () => {
-  const user = getCurrentUser();
-  return user ? `boards_${user.id}` : 'boards_guest';
-};
-
-const loadBoardsFromStorage = () => {
-  try {
-    const key = getUserBoardsKey();
-    const boards = localStorage.getItem(key);
-    return boards ? JSON.parse(boards) : [];
-  } catch (error) {
-    return [];
-  }
-};
-
-const saveBoardsToStorage = (boards) => {
-  try {
-    const key = getUserBoardsKey();
-    localStorage.setItem(key, JSON.stringify(boards));
-  } catch (error) {}
-};
+import { boardsAPI } from '../../../shared/api/auth';
 
 const initialState = {
-  boards: loadBoardsFromStorage(),
+  boards: [],
   loading: false,
   error: null,
 };
 
 export const fetchBoards = createAsyncThunk(
   'boards/fetchBoards',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, getState }) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const boards = loadBoardsFromStorage();
-      return boards;
+      const state = getState();
+      const token = state.auth.token || localStorage.getItem('token');
+      
+      if (!token) {
+        return rejectWithValue('Не авторизован');
+      }
+      
+      const response = await boardsAPI.getBoards();
+      return response.data;
     } catch (error) {
-      return rejectWithValue('Ошибка загрузки досок');
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      }
+      
+      return rejectWithValue(error.response?.data?.message || 'Ошибка загрузки досок');
     }
   }
 );
 
 export const addBoard = createAsyncThunk(
   'boards/addBoard',
-  async (boardData, { rejectWithValue }) => {
+  async (boardData, { rejectWithValue, dispatch }) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const user = getCurrentUser();
-      const newBoard = {
-        id: Date.now(),
-        name: boardData.name,
-        userId: user?.id || 'guest',
-        createdAt: new Date().toISOString(),
-      };
-      return newBoard;
+      const response = await boardsAPI.createBoard(boardData.name);
+      dispatch(fetchBoards());
+      return response.data;
     } catch (error) {
-      return rejectWithValue('Ошибка создания доски');
+      const errorMessage = error.response?.data?.message || 'Ошибка создания доски';
+      return rejectWithValue(errorMessage);
     }
   }
 );
 
 export const updateBoard = createAsyncThunk(
   'boards/updateBoard',
-  async ({ id, name }, { rejectWithValue }) => {
+  async (boardData, { rejectWithValue, dispatch }) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      return { id, name };
+      const response = await boardsAPI.updateBoard(boardData.name, boardData.id);
+      dispatch(fetchBoards());
+      return response.data;
     } catch (error) {
-      return rejectWithValue('Ошибка обновления доски');
+      return rejectWithValue(error.response?.data?.message || 'Ошибка обновления доски');
     }
   }
 );
 
 export const deleteBoard = createAsyncThunk(
   'boards/deleteBoard',
-  async (id, { rejectWithValue }) => {
+  async (boardId, { rejectWithValue, dispatch }) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      return id;
+      await boardsAPI.deleteBoard(boardId);
+      dispatch(fetchBoards());
+      return boardId;
     } catch (error) {
-      return rejectWithValue('Ошибка удаления доски');
+      return rejectWithValue(error.response?.data?.message || 'Ошибка удаления доски');
     }
   }
 );
@@ -119,10 +98,8 @@ const boardsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(addBoard.fulfilled, (state, action) => {
+      .addCase(addBoard.fulfilled, (state) => {
         state.loading = false;
-        state.boards.push(action.payload);
-        saveBoardsToStorage(state.boards);
       })
       .addCase(addBoard.rejected, (state, action) => {
         state.loading = false;
@@ -132,13 +109,8 @@ const boardsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(updateBoard.fulfilled, (state, action) => {
+      .addCase(updateBoard.fulfilled, (state) => {
         state.loading = false;
-        const index = state.boards.findIndex(board => board.id === action.payload.id);
-        if (index !== -1) {
-          state.boards[index].name = action.payload.name;
-          saveBoardsToStorage(state.boards);
-        }
       })
       .addCase(updateBoard.rejected, (state, action) => {
         state.loading = false;
@@ -148,10 +120,8 @@ const boardsSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteBoard.fulfilled, (state, action) => {
+      .addCase(deleteBoard.fulfilled, (state) => {
         state.loading = false;
-        state.boards = state.boards.filter(board => board.id !== action.payload);
-        saveBoardsToStorage(state.boards);
       })
       .addCase(deleteBoard.rejected, (state, action) => {
         state.loading = false;
