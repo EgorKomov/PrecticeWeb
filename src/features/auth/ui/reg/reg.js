@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router-dom';
 import { register } from '../../slice/authSlice';
 import { useForm } from '../../../../shared/hooks/useForm';
 import { Button } from '../../../../shared/ui';

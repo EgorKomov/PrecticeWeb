@@ -1,2 +1,2 @@
-export * from './dashboard'
+export * from './Dashboard'
 export * from './createDashboard';

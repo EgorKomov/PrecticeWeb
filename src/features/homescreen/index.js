@@ -1,2 +1,4 @@
-export { Dashboard } from './ui/Dashboard/dashboard';
-export { Board } from './board/board';
+export * from './ui';
+export * from './boards';
+export * from './lists';
+export * from './board';
