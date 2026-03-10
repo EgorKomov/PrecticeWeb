@@ -1,0 +1,72 @@
+.btn {
+    border: none;
+    outline: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    line-height: 1;
+    padding: 15px 30px;
+    height: 50px;
+    
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.btn-fullwidth {
+    width: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #7c73ff);
+    color: white;
+    box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+    
+    &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #4338ca, #6d63ff);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+    }
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981, #34d399);
+    color: white;
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    
+    &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #0da271, #2bb184);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    }
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+    color: white;
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    
+    &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #ff5252, #ff7b7b);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+    }
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+}

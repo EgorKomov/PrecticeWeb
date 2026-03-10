@@ -1,4 +1,4 @@
-import { Dashboard } from '../../features/homescreen';
+import { Dashboard } from '../../features/homeScreen';
 
 export const DashboardPage = () => {
     return(

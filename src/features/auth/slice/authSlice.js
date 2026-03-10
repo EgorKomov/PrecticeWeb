@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authAPI } from './api';
+import { authAPI } from '../../../shared/api';
 
 const getStoredUser = () => {
   try {
@@ -18,12 +18,15 @@ const getStoredToken = () => {
   }
 };
 
+const token = getStoredToken();
+const isValidToken = token && token.length > 0;
+
 const initialState = {
   user: getStoredUser(),
-  token: getStoredToken(),
+  token: token,
   loading: false,
   error: null,
-  isAuthenticated: !!getStoredToken(),
+  isAuthenticated: !!isValidToken,
 };
 
 export const login = createAsyncThunk(
@@ -33,7 +36,11 @@ export const login = createAsyncThunk(
       const response = await authAPI.login(email, password);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message || 'Неверный email или пароль');
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error ||
+                          error.message ||
+                          'Неверный email или пароль';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -42,10 +49,18 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
+      if (userData.password.length < 6) {
+        return rejectWithValue('Пароль должен содержать минимум 6 символов');
+      }
+      
       const response = await authAPI.register(userData);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message || 'Ошибка регистрации');
+      const errorMessage = error.response?.data?.message ||
+                          error.response?.data?.error ||
+                          error.message ||
+                          'Ошибка регистрации';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -82,6 +97,7 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.isAuthenticated = false;
       })
       .addCase(register.pending, (state) => {
         state.loading = true;
@@ -89,10 +105,14 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = false;
-        state.user = null;
-        state.token = null;
         state.error = null;
+        if (action.payload.access_token) {
+          state.isAuthenticated = true;
+          state.user = action.payload.user;
+          state.token = action.payload.access_token;
+          localStorage.setItem('token', action.payload.access_token);
+          localStorage.setItem('user', JSON.stringify(action.payload.user));
+        }
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;

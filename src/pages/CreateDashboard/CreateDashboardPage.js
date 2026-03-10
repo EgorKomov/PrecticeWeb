@@ -1,4 +1,4 @@
-import { CreateDashboard } from '../../features/homescreen';
+import { CreateDashboard } from '../../features/homeScreen';
 
 
 export const CreateDashboardPage = () => {

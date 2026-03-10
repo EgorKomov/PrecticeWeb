@@ -25,6 +25,20 @@
     color: white;
 }
 
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.userName {
+    color: white;
+    font-size: 16px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+}
+
 .logoutBtn {
     padding: 15px 35px;
     background: #ff6b6b;
@@ -66,6 +80,75 @@
     box-shadow: 0 12px 30px rgba(79, 70, 229, 0.4);
 }
 
+.boardsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    width: 100%;
+}
+
+.boardCardWrapper {
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.boardCardWrapper:hover {
+    transform: translateY(-10px);
+}
+
+.boardCard {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.7), rgba(124, 115, 255, 0.7));
+    border-radius: 20px;
+    padding: 30px;
+    height: 220px;
+    display: block;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+    width: 100%;
+}
+
+.boardCard:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.8), rgba(124, 115, 255, 0.8));
+}
+
+.boardCardTitle {
+    font-size: 28px;
+    margin: 0 0 15px 0;
+    font-weight: 600;
+}
+
+.boardDate {
+    display: block;
+    margin-top: 10px;
+    opacity: 0.7;
+    font-size: 14px;
+}
+
+.emptyMessage {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: white;
+    font-size: 18px;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* Модальное окно */
 .modal {
     display: none;
     position: fixed;
@@ -77,6 +160,10 @@
     z-index: 1000;
     align-items: center;
     justify-content: center;
+}
+
+.modalActive {
+    display: flex !important;
 }
 
 .modalContent {
@@ -178,59 +265,76 @@
     background: rgba(255, 255, 255, 0.2);
 }
 
-.boardsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 30px;
-    width: 100%;
-}
-
-.boardCard {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 30px;
-    height: 220px;
-    display: block;
-    text-decoration: none;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+.boardCardWrapper {
+    position: relative;
+    cursor: pointer;
     transition: all 0.3s;
-    backdrop-filter: blur(10px);
-    width: 100%;
 }
 
-.boardCard:hover {
+.boardCardWrapper:hover {
     transform: translateY(-10px);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    background: rgba(255, 255, 255, 0.15);
 }
 
-.boardCardTitle {
-    font-size: 28px;
-    margin: 0 0 15px 0;
-    font-weight: 600;
+.boardCardWrapper:hover .boardActions {
+    opacity: 1;
 }
 
-.boardCardDescription {
-    margin: 0;
+.boardActions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 10;
+}
+
+.actionBtn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.actionBtn:hover {
+    transform: scale(1.1);
+}
+
+.editBtn:hover {
+    background: #4f46e5;
+    color: white;
+}
+
+.deleteBtn:hover {
+    background: #ff6b6b;
+    color: white;
+}
+
+.deleteConfirmText {
+    text-align: center;
+    margin: 20px 0;
     font-size: 16px;
-    opacity: 0.9;
-    line-height: 1.5;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-.boardCard1 { 
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.7), rgba(124, 115, 255, 0.7));
+.modalBtnDelete {
+    background: #ff6b6b;
+    color: white;
 }
 
-.boardCard2 { 
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.7), rgba(52, 211, 153, 0.7));
+.modalBtnDelete:hover {
+    background: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
 }
 
-.boardCard3 { 
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.7), rgba(251, 191, 36, 0.7));
-}
-
-.boardCard4 { 
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.7), rgba(248, 113, 113, 0.7));
-}
