@@ -1,2 +1,2 @@
-export { Dashboard } from './dashboard';
+export { Dashboard } from './Dashboard';
 export { CreateDashboard } from './createDashboard';
