@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { register } from '../../slice/authSlice';
@@ -18,21 +18,18 @@ export const Reg = () => {
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { error, isAuthenticated } = useSelector((state) => state.auth);
-  const redirected = useRef(false);
+  const { error, isAuthenticated, loading } = useSelector((state) => state.auth);
 
   useEffect(() => {
     document.body.classList.add('auth-page');
+    
+    if (isAuthenticated) {
+      navigate(ENUM_LINK.DASHBOARD, { replace: true });
+    }
+    
     return () => {
       document.body.classList.remove('auth-page');
     };
-  }, []);
-
-  useEffect(() => {
-    if (isAuthenticated && !redirected.current) {
-      redirected.current = true;
-      navigate(ENUM_LINK.DASHBOARD, { replace: true });
-    }
   }, [isAuthenticated, navigate]);
 
   const handleSubmit = async (e) => {
@@ -74,6 +71,7 @@ export const Reg = () => {
               placeholder="Email" 
               value={values.email}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
           <div className={styles.inputBox}>
@@ -83,6 +81,7 @@ export const Reg = () => {
               placeholder="Имя" 
               value={values.name}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
           <div className={styles.inputBox}>
@@ -92,6 +91,7 @@ export const Reg = () => {
               placeholder="Пароль" 
               value={values.password}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
           <div className={styles.inputBox}>
@@ -101,6 +101,7 @@ export const Reg = () => {
               placeholder="Повторите пароль" 
               value={values.confirmPassword}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
 
@@ -108,8 +109,8 @@ export const Reg = () => {
             Пароль должен содержать минимум 6 символов
           </div>
 
-          <Button type="submit" variant="success" fullWidth>
-            Зарегистрироваться
+          <Button type="submit" variant="success" fullWidth disabled={loading}>
+            {loading ? 'Регистрация...' : 'Зарегистрироваться'}
           </Button>
           
           <div className={styles.linkContainer}>

@@ -1,1 +1,1 @@
-export * from './CreateDashboardPage'
+export { CreateDashboardPage } from './CreateDashboardPage';

@@ -10,16 +10,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 50px;
-    padding: 25px 40px;
+    margin-bottom: 30px;
+    padding: 20px 30px;
     background: rgba(22, 41, 56, 0.9);
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .headerTitle {
-    font-size: 42px;
+    font-size: 32px;
     margin: 0;
     font-weight: 700;
     color: white;
@@ -28,7 +27,7 @@
 .userInfo {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 
 .userName {
@@ -40,13 +39,12 @@
 }
 
 .logoutBtn {
-    padding: 15px 35px;
+    padding: 10px 25px;
     background: #ff6b6b;
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 600;
-    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s;
 }
@@ -54,215 +52,54 @@
 .logoutBtn:hover {
     background: #ff5252;
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
 }
 
-.newBoardSection {
-    margin-bottom: 40px;
-    text-align: left;
-}
-
-.newBoardBtn {
-    padding: 18px 40px;
-    background: #4f46e5;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.newBoardBtn:hover {
-    background: #4338ca;
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(79, 70, 229, 0.4);
-}
-
-.boardsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 30px;
-    width: 100%;
-}
-
-.boardCardWrapper {
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.boardCardWrapper:hover {
-    transform: translateY(-10px);
-}
-
-.boardCard {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.7), rgba(124, 115, 255, 0.7));
-    border-radius: 20px;
-    padding: 30px;
-    height: 220px;
-    display: block;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    transition: all 0.3s;
-    backdrop-filter: blur(10px);
-    width: 100%;
-}
-
-.boardCard:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.8), rgba(124, 115, 255, 0.8));
-}
-
-.boardCardTitle {
-    font-size: 28px;
-    margin: 0 0 15px 0;
-    font-weight: 600;
-}
-
-.boardDate {
-    display: block;
-    margin-top: 10px;
-    opacity: 0.7;
-    font-size: 14px;
-}
-
-.emptyMessage {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 60px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 18px;
-}
-
-.loading {
+.createBoardSection {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: white;
-    font-size: 18px;
-    background: rgba(0, 0, 0, 0.7);
-}
-
-/* Модальное окно */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-}
-
-.modalActive {
-    display: flex !important;
-}
-
-.modalContent {
-    background: rgba(30, 41, 59, 0.95);
-    padding: 40px;
-    border-radius: 20px;
-    width: 500px;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-}
-
-.modalTitle {
-    font-size: 32px;
-    text-align: center;
+    gap: 10px;
     margin-bottom: 30px;
-    font-weight: 700;
-    color: white;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
 }
 
-.inputBox {
-    margin: 25px 0;
-}
-
-.inputBox input {
-    width: 100%;
-    height: 55px;
+.createBoardInput {
+    flex: 1;
+    height: 50px;
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
+    border-radius: 8px;
     font-size: 16px;
     color: white;
-    padding: 0 20px;
+    padding: 0 15px;
 }
 
-.inputBox input:focus {
+.createBoardInput:focus {
     outline: none;
     border-color: #4f46e5;
 }
 
-.inputBox input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.modalButtons {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.modalBtn {
-    flex: 1;
-    padding: 16px;
+.createBoardBtn {
+    padding: 0 25px;
+    background: #4f46e5;
+    color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
 }
 
-.modalBtnCancel {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-}
-
-.modalBtnCancel:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.modalBtnSave {
-    background: #10b981;
-    color: white;
-}
-
-.modalBtnSave:hover {
-    background: #0da271;
+.createBoardBtn:hover {
+    background: #4338ca;
     transform: translateY(-2px);
 }
 
-.closeModal {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    color: white;
-    font-size: 28px;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    transition: all 0.3s;
-}
-
-.closeModal:hover {
-    background: rgba(255, 255, 255, 0.2);
+.boardsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
 }
 
 .boardCardWrapper {
@@ -272,11 +109,35 @@
 }
 
 .boardCardWrapper:hover {
-    transform: translateY(-10px);
+    transform: translateY(-5px);
 }
 
 .boardCardWrapper:hover .boardActions {
     opacity: 1;
+}
+
+.boardCard {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.7), rgba(124, 115, 255, 0.7));
+    border-radius: 12px;
+    padding: 20px;
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.boardCardTitle {
+    font-size: 24px;
+    margin: 0;
+    font-weight: 600;
+    word-break: break-word;
+}
+
+.boardDate {
+    opacity: 0.7;
+    font-size: 12px;
 }
 
 .boardActions {
@@ -284,15 +145,15 @@
     top: 10px;
     right: 10px;
     display: flex;
-    gap: 8px;
+    gap: 5px;
     opacity: 0;
     transition: opacity 0.3s;
     z-index: 10;
 }
 
 .actionBtn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border: none;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.9);
@@ -300,9 +161,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
     transition: all 0.3s;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .actionBtn:hover {
@@ -319,22 +179,70 @@
     color: white;
 }
 
-.deleteConfirmText {
-    text-align: center;
-    margin: 20px 0;
-    font-size: 16px;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.9);
+.editBoardForm {
+    background: rgba(30, 41, 59, 0.95);
+    border-radius: 12px;
+    padding: 20px;
+    height: 180px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.modalBtnDelete {
+.editBoardInput {
+    flex: 1;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    padding: 0 10px;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+.editBoardInput:focus {
+    border-color: #4f46e5;
+}
+
+.saveEditBtn, .cancelEditBtn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.2s;
+}
+
+.saveEditBtn {
+    background: #10b981;
+    color: white;
+}
+
+.saveEditBtn:hover {
+    background: #0da271;
+}
+
+.cancelEditBtn {
     background: #ff6b6b;
     color: white;
 }
 
-.modalBtnDelete:hover {
+.cancelEditBtn:hover {
     background: #ff5252;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
 }
 
+.emptyMessage {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+}

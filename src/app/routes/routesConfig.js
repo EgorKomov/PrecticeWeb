@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router";
 import { AuthPage } from "../../pages/Auth";
 import { RegPage } from "../../pages/Reg";
 import { DashboardPage } from "../../pages/Dashboard";
-import { CreateDashboardPage } from "../../pages/CreateDashboard";
+import { CreateDashboardPage } from "../../pages/CreateDashboard/CreateDashboardPage";
 import { ProtectedRoute } from "../../app/providers/ProtectedRoute";
 
 export const routesConfig = createBrowserRouter([

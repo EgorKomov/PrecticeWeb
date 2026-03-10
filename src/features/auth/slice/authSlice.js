@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authAPI } from '../../../shared/api';
+import { authAPI } from '../../../shared/api/auth';
 
 const getStoredUser = () => {
   try {
@@ -18,15 +18,12 @@ const getStoredToken = () => {
   }
 };
 
-const token = getStoredToken();
-const isValidToken = token && token.length > 0;
-
 const initialState = {
   user: getStoredUser(),
-  token: token,
+  token: getStoredToken(),
   loading: false,
   error: null,
-  isAuthenticated: !!isValidToken,
+  isAuthenticated: !!getStoredToken(),
 };
 
 export const login = createAsyncThunk(
@@ -88,11 +85,21 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload.user;
-        state.token = action.payload.access_token;
-        localStorage.setItem('token', action.payload.access_token);
-        localStorage.setItem('user', JSON.stringify(action.payload.user));
+        
+        const { token, user, access_token } = action.payload;
+        const actualToken = token || access_token;
+        const actualUser = user || { name: action.payload.name };
+        
+        if (actualToken) {
+          state.isAuthenticated = true;
+          state.user = actualUser;
+          state.token = actualToken;
+          
+          localStorage.setItem('token', actualToken);
+          localStorage.setItem('user', JSON.stringify(actualUser));
+        } else {
+          state.error = 'Токен не получен от сервера';
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -105,13 +112,20 @@ const authSlice = createSlice({
       })
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        if (action.payload.access_token) {
+        
+        const { token, user, access_token } = action.payload;
+        const actualToken = token || access_token;
+        const actualUser = user || { name: action.payload.name };
+        
+        if (actualToken) {
           state.isAuthenticated = true;
-          state.user = action.payload.user;
-          state.token = action.payload.access_token;
-          localStorage.setItem('token', action.payload.access_token);
-          localStorage.setItem('user', JSON.stringify(action.payload.user));
+          state.user = actualUser;
+          state.token = actualToken;
+          
+          localStorage.setItem('token', actualToken);
+          localStorage.setItem('user', JSON.stringify(actualUser));
+        } else {
+          state.error = 'Токен не получен при регистрации';
         }
       })
       .addCase(register.rejected, (state, action) => {

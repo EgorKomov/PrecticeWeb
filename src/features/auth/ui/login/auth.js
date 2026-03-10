@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { login } from '../../slice/authSlice';
@@ -16,8 +16,7 @@ export const Auth = () => {
   
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { error, isAuthenticated } = useSelector((state) => state.auth);
-  const redirected = useRef(false);
+  const { error, isAuthenticated, loading } = useSelector((state) => state.auth);
 
   useEffect(() => {
     document.body.classList.add('auth-page');
@@ -27,8 +26,7 @@ export const Auth = () => {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated && !redirected.current) {
-      redirected.current = true;
+    if (isAuthenticated) {
       navigate(ENUM_LINK.DASHBOARD, { replace: true });
     }
   }, [isAuthenticated, navigate]);
@@ -40,7 +38,9 @@ export const Auth = () => {
       return;
     }
 
-    await dispatch(login(values));
+    const result = await dispatch(login(values));
+    if (login.fulfilled.match(result)) {
+    }
   };
 
   return (
@@ -62,6 +62,7 @@ export const Auth = () => {
               placeholder="Email" 
               value={values.email}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
           <div className={styles.inputBox}>
@@ -71,11 +72,12 @@ export const Auth = () => {
               placeholder="Пароль" 
               value={values.password}
               onChange={handleChange}
+              disabled={loading}
             />
           </div>
 
-          <Button type="submit" variant="primary" fullWidth>
-            Войти
+          <Button type="submit" variant="primary" fullWidth disabled={loading}>
+            {loading ? 'Вход...' : 'Войти'}
           </Button>
           
           <div className={styles.linkContainer}>

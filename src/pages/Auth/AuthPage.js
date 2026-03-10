@@ -1,8 +1,10 @@
-import {Auth} from '../../features/auth'
-
+import { Auth } from '../../features/auth';
+import { Layout } from '../../features/layout/Layout';
 
 export const AuthPage = () => {
-    return(
-        <Auth/>
-    )
-}
+  return (
+    <Layout>
+      <Auth />
+    </Layout>
+  );
+};

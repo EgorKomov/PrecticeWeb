@@ -378,3 +378,56 @@
         align-items: normal;
     }
 }
+
+.deleteListBtn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 8px;
+    transition: all 0.3s;
+    
+    &:hover {
+        color: #ff6b6b;
+        transform: scale(1.1);
+    }
+}
+
+.deleteCardBtn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 5px;
+    transition: all 0.3s;
+    
+    &:hover {
+        color: #ff6b6b;
+        transform: scale(1.1);
+    }
+}
+
+.completed {
+    text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: white;
+    font-size: 18px;
+}
+
+.error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    color: #ff6b6b;
+    font-size: 18px;
+}

@@ -1,7 +1,10 @@
 import { Dashboard } from '../../features/homeScreen';
+import { Layout } from '../../features/layout/Layout';
 
 export const DashboardPage = () => {
-    return(
-        <Dashboard/>
-    )
-}
+  return (
+    <Layout>
+      <Dashboard />
+    </Layout>
+  );
+};
