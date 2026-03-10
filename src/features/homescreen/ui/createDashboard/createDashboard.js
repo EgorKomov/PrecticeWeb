@@ -11,7 +11,7 @@ import {
   deleteTask,
   toggleTaskComplete
 } from '../../lists/listsSlice';
-import { ENUM_LINK } from '../../../../shared/constants/link';
+import { ENUM_LINK } from '../../../../app/routes/routesConfig';
 import { Button } from '../../../../shared/ui/Button';
 import styles from './style.module.scss';
 

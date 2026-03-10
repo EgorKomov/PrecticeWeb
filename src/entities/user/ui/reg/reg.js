@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { register } from '../../slice/authSlice';
+import { register } from '../../../../features/auth/slice/authSlice';
 import { useForm } from '../../../../shared/hooks/useForm';
 import { Button } from '../../../../shared/ui';
-import { ENUM_LINK } from '../../../../shared/constants/link';
+import { ENUM_LINK } from '../../../../app/routes/routesConfig';
 import styles from './styles.module.scss';
 import { Link } from "react-router";
 
@@ -103,10 +103,6 @@ export const Reg = () => {
               onChange={handleChange}
               disabled={loading}
             />
-          </div>
-
-          <div className={styles.passwordHint}>
-            Пароль должен содержать минимум 6 символов
           </div>
 
           <Button type="submit" variant="success" fullWidth disabled={loading}>

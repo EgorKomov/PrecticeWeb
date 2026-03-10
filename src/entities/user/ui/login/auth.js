@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../../slice/authSlice';
+import { login } from '../../../../features/auth/slice/authSlice';
 import { useForm } from '../../../../shared/hooks/useForm';
 import { Button } from '../../../../shared/ui';
-import { ENUM_LINK } from '../../../../shared/constants/link';
+import { ENUM_LINK } from '../../../../app/routes/routesConfig';
 import styles from './style.module.scss';
 import { Link } from "react-router";
 

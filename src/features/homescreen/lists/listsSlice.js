@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { listsAPI, tasksAPI } from '../../../shared/api/auth';
+import { listsAPI } from '../../../entities/list/api/list';
+import { tasksAPI } from '../../../entities/task/api/task';
 
 const initialState = {
   lists: [],
@@ -131,11 +132,16 @@ export const deleteTask = createAsyncThunk(
 
 export const toggleTaskComplete = createAsyncThunk(
   'lists/toggleTaskComplete',
-  async ({ id, listId, boardId, completed }, { rejectWithValue, dispatch }) => {
+  async ({ id, listId, boardId, completed }, { rejectWithValue, dispatch, getState }) => {
     try {
       const newCompleted = !completed;
+      
+      const state = getState();
+      const task = state.lists.tasks[listId]?.find(t => t.id === id);
+      const content = task?.name;
+      
       const response = await tasksAPI.updateTask(
-        '',
+        content,
         !newCompleted,
         id,
         listId,
@@ -149,14 +155,63 @@ export const toggleTaskComplete = createAsyncThunk(
   }
 );
 
+export const reorderTasksThunk = createAsyncThunk(
+  'lists/reorderTasks',
+  async ({ taskId, boardId, order, newListId }, { rejectWithValue, dispatch, getState }) => {
+    try {
+      const state = getState();
+      const token = state.auth.token || localStorage.getItem('token');
+      
+      if (!token) {
+        return rejectWithValue('Не авторизован');
+      }
+      
+      const response = await tasksAPI.reorderTasks(boardId, taskId, order, newListId);
+      dispatch(fetchBoardData(boardId));
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      }
+      
+      return rejectWithValue(error.response?.data?.message || 'Ошибка');
+    }
+  }
+);
+
+export const reorderListsThunk = createAsyncThunk(
+  'lists/reorderLists',
+  async ({ boardId, listId, order }, { rejectWithValue, dispatch, getState }) => {
+    try {
+      const state = getState();
+      const token = state.auth.token || localStorage.getItem('token');
+      
+      if (!token) {
+        return rejectWithValue('Не авторизован');
+      }
+
+      const response = await listsAPI.reorderLists(boardId, listId, order);
+      
+      dispatch(fetchBoardData(boardId));
+      return response.data;
+    } catch (error) {
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      }
+      
+      return rejectWithValue(error.response?.data?.message || 'Ошибка при изменении порядка списков');
+    }
+  }
+);
+
 const listsSlice = createSlice({
   name: 'lists',
   initialState,
-  reducers: {
-    clearListsError: (state) => {
-      state.error = null;
-    },
-  },
+
   extraReducers: (builder) => {
     builder
       .addCase(fetchBoardData.pending, (state) => {
@@ -265,9 +320,28 @@ const listsSlice = createSlice({
       .addCase(toggleTaskComplete.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(reorderTasksThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(reorderTasksThunk.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(reorderTasksThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(reorderListsThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(reorderListsThunk.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(reorderListsThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { clearListsError } = listsSlice.actions;
 export default listsSlice.reducer;

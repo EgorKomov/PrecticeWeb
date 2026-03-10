@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authAPI } from '../../../shared/api/auth';
+import { authAPI } from '../../../entities/user/api/auth';
 
 const getStoredUser = () => {
   try {
@@ -45,11 +45,7 @@ export const login = createAsyncThunk(
 export const register = createAsyncThunk(
   'auth/register',
   async (userData, { rejectWithValue }) => {
-    try {
-      if (userData.password.length < 6) {
-        return rejectWithValue('Пароль должен содержать минимум 6 символов');
-      }
-      
+    try {      
       const response = await authAPI.register(userData);
       return response.data;
     } catch (error) {
@@ -86,17 +82,21 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         
-        const { token, user, access_token } = action.payload;
-        const actualToken = token || access_token;
-        const actualUser = user || { name: action.payload.name };
+        const { token, name, email } = action.payload;
         
-        if (actualToken) {
-          state.isAuthenticated = true;
-          state.user = actualUser;
-          state.token = actualToken;
+        if (token) {
+          const user = {
+            name: name || 'User',
+            email: email || '',
+          };
           
-          localStorage.setItem('token', actualToken);
-          localStorage.setItem('user', JSON.stringify(actualUser));
+          state.isAuthenticated = true;
+          state.user = user;
+          state.token = token;
+          
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
+
         } else {
           state.error = 'Токен не получен от сервера';
         }
@@ -113,17 +113,20 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
         
-        const { token, user, access_token } = action.payload;
-        const actualToken = token || access_token;
-        const actualUser = user || { name: action.payload.name };
+        const { token, name, email } = action.payload;
         
-        if (actualToken) {
-          state.isAuthenticated = true;
-          state.user = actualUser;
-          state.token = actualToken;
+        if (token) {
+          const user = {
+            name: name || 'User',
+            email: email || '',
+          };
           
-          localStorage.setItem('token', actualToken);
-          localStorage.setItem('user', JSON.stringify(actualUser));
+          state.isAuthenticated = true;
+          state.user = user;
+          state.token = token;
+          
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
         } else {
           state.error = 'Токен не получен при регистрации';
         }

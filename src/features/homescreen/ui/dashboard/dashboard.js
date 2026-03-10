@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 import { logout } from '../../../auth/slice/authSlice';
-import { fetchBoards, addBoard, updateBoard, deleteBoard } from '../../boards/boardsSlice';
-import { ENUM_LINK } from '../../../../shared/constants/link';
-import { Button } from '../../../../shared/ui/Button';
+import { fetchBoards, addBoard, updateBoard, deleteBoard, reorderBoardsThunk } from '../../boards/boardsSlice';
+import { ENUM_LINK } from '../../../../app/routes/routesConfig';
 import styles from './styles.module.scss';
+import classNames from 'classnames';
+import { Button } from '../../../../shared/ui';
+
 
 export const Dashboard = () => {
   const dispatch = useDispatch();
@@ -15,6 +17,7 @@ export const Dashboard = () => {
   
   const [newBoardName, setNewBoardName] = useState('');
   const [editingBoard, setEditingBoard] = useState(null);
+  const [currentBoard, setCurrentBoard] = useState(null);
 
   useEffect(() => {
     document.body.classList.add('dashboard-page');
@@ -33,6 +36,34 @@ export const Dashboard = () => {
     };
   }, [isAuthenticated, navigate, dispatch]);
 
+  function dragStartHandler(e, board) {
+    setCurrentBoard(board);
+  }
+
+  function dragEndHandler(e) {
+    e.target.style.opacity = '1';
+  }
+
+  function dragOverHandler(e) {
+    e.preventDefault();
+    e.target.style.opacity = '0.7';
+  }
+
+  async function dropHandler(e, targetBoard) {
+    e.preventDefault();
+    
+    if (!currentBoard || currentBoard.id === targetBoard.id) return;
+    
+    await dispatch(reorderBoardsThunk({ 
+      boardId: currentBoard.id,
+      targetOrder: targetBoard.order,
+      sourceOrder: currentBoard.order,
+      allBoards: boards
+    }));
+    
+    e.target.style.opacity = '1';
+  }
+
   const handleLogout = () => {
     dispatch(logout());
     navigate(ENUM_LINK.MAIN, { replace: true });
@@ -40,7 +71,10 @@ export const Dashboard = () => {
 
   const handleCreateBoard = () => {
     if (newBoardName.trim()) {
-      dispatch(addBoard({ name: newBoardName.trim() }));
+      dispatch(addBoard({ 
+        name: newBoardName.trim(),
+        order: boards.length + 1 
+      }));
       setNewBoardName('');
     }
   };
@@ -66,30 +100,11 @@ export const Dashboard = () => {
   };
 
   const handleBoardClick = (boardId) => {
-    navigate(`/dashboard/${boardId}`);
+    navigate(`${ENUM_LINK.DASHBOARD}/${boardId}`);
   };
 
-  const formatDate = (dateString) => {
-    if (dateString) {
-      try {
-        const date = new Date(dateString);
-        if (!isNaN(date.getTime())) {
-          return date.toLocaleDateString('ru-RU', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-          });
-        }
-      } catch (error) {
-      }
-    }
-    
-    const today = new Date();
-    return today.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+  const sortBoards = (a, b) => {
+    return a.order - b.order;
   };
 
   if (!isAuthenticated) {
@@ -102,9 +117,7 @@ export const Dashboard = () => {
         <h1 className={styles.headerTitle}>Мои доски</h1>
         <div className={styles.userInfo}>
           {user && <span className={styles.userName}>{user.name || user.email}</span>}
-          <button onClick={handleLogout} className={styles.logoutBtn}>
-            Выйти
-          </button>
+          <Button variant="danger" onClick={handleLogout}>Выйти</Button>
         </div>
       </div>
 
@@ -116,14 +129,12 @@ export const Dashboard = () => {
           onChange={(e) => setNewBoardName(e.target.value)}
           className={styles.createBoardInput}
         />
-        <button onClick={handleCreateBoard} className={styles.createBoardBtn}>
-          + Создать доску
-        </button>
+        <Button variant="primary" onClick={handleCreateBoard} disabled={!newBoardName.trim()}>+ Создать доску</Button>
       </div>
 
       <div className={styles.boardsGrid}>
         {boards && boards.length > 0 ? (
-          boards.map((board) => (
+          [...boards].sort(sortBoards).map((board) => (
             <div key={board.id} className={styles.boardCardWrapper}>
               {editingBoard && editingBoard.id === board.id ? (
                 <div className={styles.editBoardForm}>
@@ -134,33 +145,32 @@ export const Dashboard = () => {
                     className={styles.editBoardInput}
                     autoFocus
                   />
-                  <button onClick={handleUpdateBoard} className={styles.saveEditBtn}>✓</button>
-                  <button onClick={() => setEditingBoard(null)} className={styles.cancelEditBtn}>✗</button>
+                  <Button variant="icon" onClick={handleUpdateBoard}>✓</Button>
+                  <Button variant="icon" onClick={() => setEditingBoard(null)}>✗</Button>
                 </div>
               ) : (
                 <>
                   <div 
                     className={styles.boardCard}
                     onClick={() => handleBoardClick(board.id)}
+                    draggable={true}
+                    onDragStart={(e) => dragStartHandler(e, board)}
+                    onDragLeave={(e) => dragEndHandler(e)}
+                    onDragEnd={(e) => dragEndHandler(e)}
+                    onDragOver={(e) => dragOverHandler(e)}
+                    onDrop={(e) => dropHandler(e, board)}
                   >
                     <h3 className={styles.boardCardTitle}>{board.name}</h3>
-                    <small className={styles.boardDate}>
-                      {formatDate(board.createdAt)}
-                    </small>
                   </div>
                   <div className={styles.boardActions}>
-                    <button 
-                      className={`${styles.actionBtn} ${styles.editBtn}`}
+                    <Button 
+                      variant="icon" 
                       onClick={(e) => { e.stopPropagation(); handleEditBoard(board); }}
-                    >
-                      ✏️
-                    </button>
-                    <button 
-                      className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                      className={classNames(styles.actionBtn, styles.editBtn)}>✏️</Button>
+                    <Button 
+                      variant="icon" 
                       onClick={(e) => { e.stopPropagation(); handleDeleteBoard(board.id); }}
-                    >
-                      ✕
-                    </button>
+                      className={classNames(styles.actionBtn, styles.deleteBtn)}>✕</Button>
                   </div>
                 </>
               )}

@@ -412,3 +412,17 @@
     min-width: 20px;
     height: 100%;
 }
+
+.list[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.card[draggable="true"]:active {
+  cursor: grabbing;
+  opacity: 0.5;
+}
+
+.list, .card {
+  cursor: grab;
+  user-select: none;
+}

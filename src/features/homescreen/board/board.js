@@ -9,11 +9,14 @@ import {
   addTask,
   updateTask,
   deleteTask,
-  toggleTaskComplete
+  toggleTaskComplete,
+  reorderListsThunk,
+  reorderTasksThunk
 } from '../lists/listsSlice';
-import { ENUM_LINK } from '../../../shared/constants/link';
-import { Button } from '../../../shared/ui/Button';
+import { ENUM_LINK } from '../../../app/routes/routesConfig';
 import styles from './style.module.scss';
+import { Button } from '../../../shared/ui';
+import { Input } from '../../../shared/ui';
 
 export const Board = () => {
   const { id } = useParams();
@@ -30,6 +33,10 @@ export const Board = () => {
   const [newTaskContent, setNewTaskContent] = useState('');
   const [activeListId, setActiveListId] = useState(null);
   const [editingTask, setEditingTask] = useState(null);
+
+  const [currentList, setCurrentList] = useState(null);
+  const [currentTask, setCurrentTask] = useState(null);
+  const [draggedTaskId, setDraggedTaskId] = useState(null);
 
   const currentBoard = boards?.find(b => b.id === Number(id) || b.id === id);
 
@@ -50,6 +57,117 @@ export const Board = () => {
       document.body.classList.remove('board-page');
     };
   }, [isAuthenticated, id, dispatch, navigate]);
+
+  const sortLists = (a, b) => {
+    return (a.order - b.order);
+  };
+
+  const sortTasks = (tasksArray) => {
+    if (!tasksArray) return [];
+    return [...tasksArray].sort((a, b) => (a.order - b.order));
+  };
+
+  const resetAllOpacity = () => {
+    document.querySelectorAll(`.${styles.list}, .${styles.card}`).forEach(el => {
+      el.style.opacity = '1';
+    });
+  };
+
+  function dragStartListHandler(e, list) {
+    if (draggedTaskId) return;
+    
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', JSON.stringify({ type: 'list', list }));
+    setCurrentList(list);
+  }
+
+  function dragStartTaskHandler(e, task, listId) {
+    e.stopPropagation();
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', JSON.stringify({ 
+      type: 'task', 
+      taskId: task.id,
+      sourceListId: listId
+    }));
+    setDraggedTaskId(task.id);
+    setCurrentTask(task);
+  }
+
+  function dragEndHandler(e) {
+    e.target.style.opacity = '1';
+    resetAllOpacity();
+    setDraggedTaskId(null);
+    setCurrentTask(null);
+    setCurrentList(null);
+  }
+
+  function dragOverHandler(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const target = e.target.closest(`.${styles.list}, .${styles.card}`);
+    if (target) {
+      target.style.opacity = '0.7';
+    }
+  }
+
+  function dragLeaveHandler(e) {
+    const target = e.target.closest(`.${styles.list}, .${styles.card}`);
+    if (target) {
+      target.style.opacity = '1';
+    }
+  }
+
+  async function dropListHandler(e, targetList) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    resetAllOpacity();
+    
+    const draggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
+    
+    if (draggedData?.type === 'list' && currentList?.id !== targetList.id) {
+      await dispatch(reorderListsThunk({ 
+        boardId: id, 
+        listId: currentList.id,
+        order: targetList.order
+      }));
+    }
+    
+    e.target.style.opacity = '1';
+  }
+
+  async function dropTaskHandler(e, targetListId, targetTask) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    resetAllOpacity();
+    
+    const draggedData = JSON.parse(e.dataTransfer.getData('text/plain'));
+    
+    if (draggedData.type === 'task' && currentTask) {
+      let targetOrder;
+      if (targetTask) {
+        targetOrder = targetTask.order;
+      } else {
+        targetOrder = tasks[targetListId]?.length || 0;
+      }
+      
+      await dispatch(reorderTasksThunk({
+        taskId: currentTask.id,
+        boardId: id,
+        order: targetOrder,
+        newListId: targetListId
+      }));
+    }
+    
+    e.target.style.opacity = '1';
+    setDraggedTaskId(null);
+    setCurrentTask(null);
+  }
+
+  function dropOnListHandler(e, targetListId) {
+    dropTaskHandler(e, targetListId, null);
+  }
 
   const handleCreateList = () => {
     if (newListName.trim() && id) {
@@ -92,7 +210,12 @@ export const Board = () => {
   };
 
   const handleEditTask = (task) => {
-    setEditingTask(task);
+    setEditingTask({
+      id: task.id,
+      content: task.name,
+      listId: task.listId,
+      completed: task.completed
+    });
   };
 
   const handleUpdateTask = () => {
@@ -114,16 +237,19 @@ export const Board = () => {
     }
   };
 
-  const getTaskName = (task) => {
-    return task.content || task.name || 'Без названия';
+  const handleToggleTaskComplete = (task, listId) => {
+    dispatch(toggleTaskComplete({ 
+      id: task.id, 
+      listId: listId, 
+      boardId: id,
+      completed: task.completed
+    }));
   };
 
   return (
     <div className={styles.boardContainer}>
       <div className={styles.boardHeader}>
-        <button onClick={() => navigate('/dashboard')} className={styles.backBtn}>
-          ← Назад
-        </button>
+        <Button variant="back" onClick={() => navigate(ENUM_LINK.DASHBOARD)}>← Назад</Button>
         <h1 className={styles.boardTitle}>{currentBoard?.name || 'Моя доска'}</h1>
       </div>
 
@@ -135,15 +261,22 @@ export const Board = () => {
           onChange={(e) => setNewListName(e.target.value)}
           className={styles.createListInput}
         />
-        <button onClick={handleCreateList} className={styles.createListBtn}>
-          + Добавить список
-        </button>
+          <Button variant="primary" onClick={handleCreateList} disabled={!newListName.trim()}>+ Добавить список</Button>
       </div>
 
       <div className={styles.listsContainer}>
-        {lists && lists.length > 0 ? (
-          lists.map(list => (
-            <div key={list.id} className={styles.list}>
+        {lists?.length > 0 ? (
+          [...lists].sort(sortLists).map(list => (
+            <div 
+              key={list.id} 
+              className={`${styles.list} ${draggedTaskId ? styles.listDraggable : ''}`}
+              draggable={!draggedTaskId}
+              onDragStart={(e) => dragStartListHandler(e, list)}
+              onDragLeave={dragLeaveHandler}
+              onDragEnd={dragEndHandler}
+              onDragOver={dragOverHandler}
+              onDrop={(e) => dropListHandler(e, list)}
+            >
               <div className={styles.listHeader}>
                 {editingList && editingList.id === list.id ? (
                   <div className={styles.editListForm}>
@@ -154,99 +287,79 @@ export const Board = () => {
                       className={styles.listEditInput}
                       autoFocus
                     />
-                    <button onClick={handleUpdateList} className={styles.saveEditBtn}>✓</button>
-                    <button onClick={() => setEditingList(null)} className={styles.cancelEditBtn}>✗</button>
+                    <Button variant="icon" onClick={handleUpdateList}>✓</Button>
+                    <Button variant="icon" onClick={() => setEditingList(null)}>✗</Button>
                   </div>
                 ) : (
                   <>
                     <h3 className={styles.listTitle}>{list.name}</h3>
                     <div className={styles.listActions}>
-                      <button 
-                        className={styles.editListBtn}
-                        onClick={() => handleEditList(list)}
-                      >
-                        ✏️
-                      </button>
-                      <button 
-                        className={styles.deleteListBtn}
-                        onClick={() => handleDeleteList(list.id)}
-                      >
-                        ×
-                      </button>
+                      <Button variant="icon" onClick={() => handleEditList(list)}>✏️</Button>
+                      <Button variant="icon" onClick={() => handleDeleteList(list.id)}>×</Button>
                     </div>
                   </>
                 )}
               </div>
               
-              <div className={styles.cardsContainer}>
+              <div 
+                className={styles.cardsContainer}
+                onDragOver={dragOverHandler}
+                onDragLeave={dragLeaveHandler}
+                onDrop={(e) => dropOnListHandler(e, list.id)}
+              >
                 {activeListId === list.id ? (
                   <div className={styles.createTaskSection}>
-                    <input
-                      type="text"
-                      placeholder="Содержание задачи"
-                      value={newTaskContent}
-                      onChange={(e) => setNewTaskContent(e.target.value)}
-                      className={styles.createTaskInput}
-                      autoFocus
-                    />
+                      <Input
+                        value={newTaskContent}
+                        onChange={setNewTaskContent}
+                      />
                     <div className={styles.taskFormButtons}>
-                      <button onClick={() => handleCreateTask(list.id)} className={styles.createTaskBtn}>
-                        Добавить
-                      </button>
-                      <button onClick={() => setActiveListId(null)} className={styles.cancelTaskBtn}>
-                        Отмена
-                      </button>
+                      <Button variant="success" onClick={() => handleCreateTask(list.id)} disabled={!newTaskContent.trim()}>Добавить</Button>
+                      <Button variant="secondary" onClick={() => setActiveListId(null)}>Отмена</Button>
                     </div>
                   </div>
                 ) : (
                   <>
-                    {tasks && tasks[list.id] && tasks[list.id].length > 0 ? (
-                      tasks[list.id].map(task => (
-                        <div key={task.id} className={styles.card}>
+                    {tasks?.[list.id]?.length > 0 ? (
+                      sortTasks(tasks[list.id]).map(task => (
+                        <div 
+                          key={task.id} 
+                          className={`${styles.card} ${draggedTaskId === task.id ? styles.dragging : ''}`}
+                          draggable={true}
+                          onDragStart={(e) => dragStartTaskHandler(e, task, list.id)}
+                          onDragLeave={dragLeaveHandler}
+                          onDragEnd={dragEndHandler}
+                          onDragOver={dragOverHandler}
+                          onDrop={(e) => dropTaskHandler(e, list.id, task)}
+                        >
                           <input 
                             type="checkbox" 
                             className={styles.cardCheckbox}
                             checked={task.completed || false}
-                            onChange={() => dispatch(toggleTaskComplete({ 
-                              id: task.id, 
-                              listId: list.id, 
-                              boardId: id,
-                              completed: task.completed 
-                            }))}
-                          />
-                          
-                          {editingTask && editingTask.id === task.id ? (
+                            onChange={() => handleToggleTaskComplete(task, list.id)}
+                          /> 
+                          {editingTask?.id === task.id ? (
                             <div className={styles.editTaskForm}>
                               <input
                                 type="text"
-                                value={editingTask.content || editingTask.name || ''}
+                                value={editingTask?.content || ''}
                                 onChange={(e) => setEditingTask({ ...editingTask, content: e.target.value })}
                                 className={styles.taskEditInput}
                                 autoFocus
                               />
-                              <button onClick={handleUpdateTask} className={styles.saveEditBtn}>✓</button>
-                              <button onClick={() => setEditingTask(null)} className={styles.cancelEditBtn}>✗</button>
+                              <Button variant="icon" onClick={handleUpdateTask}>✓</Button>
+                              <Button variant="icon" onClick={() => setEditingTask(null)}>✗</Button>
                             </div>
                           ) : (
                             <>
                               <span 
                                 className={`${styles.cardContent} ${task.completed ? styles.completed : ''}`}
                               >
-                                {getTaskName(task)}
+                                {task.name}
                               </span>
                               <div className={styles.taskActions}>
-                                <button 
-                                  className={styles.editTaskBtn}
-                                  onClick={() => handleEditTask(task)}
-                                >
-                                  ✏️
-                                </button>
-                                <button 
-                                  className={styles.deleteCardBtn}
-                                  onClick={() => handleDeleteTask(task.id, list.id)}
-                                >
-                                  ✕
-                                </button>
+                                <Button variant="icon" onClick={() => handleEditTask(task)}>✏️</Button>
+                                <Button variant="icon" onClick={() => handleDeleteTask(task.id, list.id)}>✕</Button>
                               </div>
                             </>
                           )}
@@ -254,14 +367,8 @@ export const Board = () => {
                       ))
                     ) : (
                       <div className={styles.noTasks}>Нет задач</div>
-                    )}
-                    
-                    <button 
-                      className={styles.addCardBtn}
-                      onClick={() => setActiveListId(list.id)}
-                    >
-                      + Добавить задачу
-                    </button>
+                    )} 
+                    <Button variant="secondary" onClick={() => setActiveListId(list.id)}>+ Добавить задачу</Button>
                   </>
                 )}
               </div>
@@ -269,8 +376,7 @@ export const Board = () => {
           ))
         ) : (
           <div className={styles.noLists}>В этой доске пока нет списков</div>
-        )}
-        
+        )}       
         <div className={styles.addListPlaceholder}></div>
       </div>
     </div>
