@@ -11,6 +11,17 @@ body,
     flex-direction: column;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: url('../../shared/assets/img/Login-Reg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
 *,
 *:before,
 *:after {
@@ -41,21 +52,33 @@ a {
     text-decoration: none;
 }
 
-body {
-    position: relative;
-    display: block;
-}
-
 *::-webkit-scrollbar {
     width: 0.4em;
     height: 0.6em;
     border-radius: 10px;
 }
 
+body.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
 body.dashboard-page,
 body.board-page {
     display: block;
+    background: #0f172a;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
+    min-height: 100vh;
+    padding: 20px;
 }
 
 .dashboard-container {
