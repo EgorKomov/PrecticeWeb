@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
-import { ENUM_LINK } from '../../shared/constants/link';
+import { ENUM_LINK } from '../../app/routes/routesConfig';
 
 export const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);

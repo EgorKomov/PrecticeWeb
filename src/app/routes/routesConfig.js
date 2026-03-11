@@ -1,21 +1,27 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter } from "react-router-dom";
 import { AuthPage } from "../../pages/Auth";
 import { RegPage } from "../../pages/Reg";
 import { DashboardPage } from "../../pages/Dashboard";
 import { CreateDashboardPage } from "../../pages/CreateDashboard/CreateDashboardPage";
 import { ProtectedRoute } from "../../app/providers/ProtectedRoute";
 
+export const ENUM_LINK = {
+    MAIN: '/',
+    DASHBOARD: '/dashboard',
+    REG: '/register',
+};
+
 export const routesConfig = createBrowserRouter([
   {
-    path: "/",
+    path: ENUM_LINK.MAIN,
     element: <AuthPage />
   },
   {
-    path: "/register",
+    path: ENUM_LINK.REG,
     element: <RegPage />
   },
   {
-    path: "/dashboard",
+    path: ENUM_LINK.DASHBOARD,
     element: (
       <ProtectedRoute>
         <DashboardPage />
@@ -23,7 +29,7 @@ export const routesConfig = createBrowserRouter([
     )
   },
   {
-    path: "/dashboard/:id",
+    path: `${ENUM_LINK.DASHBOARD}/:id`,
     element: (
       <ProtectedRoute>
         <CreateDashboardPage />
@@ -31,3 +37,6 @@ export const routesConfig = createBrowserRouter([
     )
   }
 ]);
+
+
+
